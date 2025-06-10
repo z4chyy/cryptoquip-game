@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Cryptoquip</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  
+  <style>
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.3s;
+    }
+
+    .congrats-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      color: white;
+      text-align: center;
+      font-family: 'Luckiest Guy', cursive;
+    }
+
+    .popup-content {
+      background: #111;
+      padding: 20px;
+      border-radius: 15px;
+      border: 4px solid #208e4f;
+      max-width: 90%;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 20px;
+    }
+
+    .popup-title {
+      font-size: clamp(28px, 6vw, 36px);
+      color: #208e4f;
+      margin-bottom: 15px;
+    }
+
+    .popup-subtitle {
+      margin-bottom: 15px;
+      font-size: clamp(16px, 4vw, 20px);
+    }
+    .popup-stats {
+      font-family: Arial, sans-serif;
+      font-size: clamp(14px, 3.5vw, 18px);
+      margin-bottom: 15px;
+    }
+
+    .popup-quote {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(16px, 4vw, 22px);
+      line-height: 1.6;
+      margin: 15px 0;
+      letter-spacing: 1px;
+    }
+
+    .popup-close {
+      background: #208e4f;
+      color: black;
+      border: none;
+      padding: 8px 20px;
+      font-size: clamp(16px, 4vw, 18px);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      min-width: 100px;
+    }
+
+    .popup-close:hover {
+      background: #176638;
+    }
+
+    .popup-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .divider {
+      color: rgba(255,255,255,0.3);
+      font-size: clamp(14px, 3.5vw, 18px);
+    }
+
+    .share-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      transition: transform 0.2s;
+    }
+
+    .share-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .share-btn img {
+      width: clamp(16px, 4vw, 20px);
+      height: clamp(16px, 4vw, 20px);
+      display: block;
+    }
+
+    .copy-feedback {
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #2ecc71;
+      font-size: clamp(12px, 3vw, 14px);
+      height: 18px;
+    }
+
+    .alphabet-section {
+      margin-bottom: 5px;
+    }
+
+    .grid-spacer {
+      height: 10px;
+      border-bottom: 1px dashed rgba(255,255,255,0.2);
+      margin: 8px 0;
+    }
+
+    .grid-row {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+      margin-bottom: 3px;
+      flex-wrap: wrap;
+    }
+
+    .grid-row > div {
+      width: 30px;
+      padding: 6px 0;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .header-row > div {
+      font-weight: bold;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .guess-row > div {
+      background: rgba(255,255,255,0.1);
+      min-height: 20px;
+    }
+
+    /* Color coding */
+    .guess-row > div.correct { background: rgba(46, 204, 113, 0.3); }
+    .guess-row > div.incorrect { background: rgba(231, 76, 60, 0.3); }
+    .guess-row > div.hint { background: rgba(52, 152, 219, 0.3); }
+
+    /* How to Play Popup */
+    .how-to-play-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .htp-content {
+      position: relative;
+      background: #cdcdd1;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 6px solid #565657;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      box-sizing: border-box;
+      margin: 20px;
+    }
+
+    .htp-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #333;
+      padding: 5px;
+    }
+
+    .htp-text {
+      margin-top: 15px;
+      font-size: clamp(14px, 3.5vw, 16px);
+      line-height: 1.5;
+    }
+
+    /* Help Button */
+    .help-btn {
+      position: absolute;
+      right: 10px;
+      top: 30%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+
+    .help-btn:hover {
+      opacity: 0.8;
+    }
+
+    .help-btn img {
+      width: clamp(40px, 8vw, 65px);
+      height: clamp(35px, 7vw, 57px);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: clamp(12px, 3vw, 14px);
+      background: rgba(0, 0, 0, 0.85);
+      color: #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      font-family: Arial, sans-serif;
+      line-height: 1.4;
+    }
+    .footer a {
+      color: #39ff14;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .hint-letter { color: darkblue; font-weight: bold; }
+    .entered-letter { color: goldenrod; font-weight: bold; }
+    .correct-guess { color: darkgreen; font-weight: bold; }
+    .incorrect-guess { color: red; font-weight: bold; }
+
+    button {
+      padding: 8px 16px;
+      margin: 4px;
+      cursor: pointer;
+      background: transparent;
+      border: 2px solid #333;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s, color 0.3s;
+      font-size: clamp(14px, 3.5vw, 16px);
+      touch-action: manipulation;
+    }
+    button:hover {
+      background: #333;
+      color: #fff;
+    }
+
+    button.check-button {
+      background-color: slateblue;
+      color: #fff;
+      border: 2px solid #333;
+    }
+
+    button.check-button:hover {
+      background-color: navy;
+      color: #fff;
+    }
+
+    button.hint-button {
+      background-color: gold;
+      color: #000;
+      border: 2px solid #333;
+    }
+
+    button.hint-button:hover {
+      background-color: orange;
+      color: #000;
+    }
+
+    button.reset-button {
+      background-color: red;
+      color: #fff;
+      border: 2px solid #333;
+    }
+
+    button.reset-button:hover {
+      background-color: darkred;
+      color: #fff;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('cryptoquip_background_image.png') no-repeat center center fixed;
+      background-size: cover;
+      filter: grayscale(0.6) brightness(0.7) blur(4px);
+      z-index: -1;
+    }
+
+    .border-box {
+      border: 4px solid darkgreen;
+      border-radius: 15px;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 15px;
+      background: #eee;
+      box-sizing: border-box;
+      width: calc(100% - 40px);
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #000;
+      color: #fff;
+      padding: 15px 10px;
+      text-align: center;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    #date {
+      font-size: clamp(12px, 3vw, 16px);
+      margin-bottom: 5px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 40px);
+      font-family: 'Luckiest Guy', cursive;
+      position: relative;
+    }
+    .container { 
+      text-align: center;
+      padding: clamp(80px, 15vw, 110px) 10px 30px;
+      flex: 1;
+    }
+
+    .puzzle-block { margin-bottom: 20px; }
+    .puzzle-line, .blanks-line {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: clamp(16px, 4vw, 26px);
+      font-weight: bold;
+      color: #111;
+      letter-spacing: clamp(2px, 1vw, 6px);
+      word-spacing: clamp(5px, 2vw, 20px);
+      margin: 5px 0;
+      line-height: 1.4;
+    }
+    .letter-box { display: inline-block; width: clamp(20px, 6vw, 30px); }
+    input {
+      width: clamp(30px, 8vw, 40px);
+      height: clamp(35px, 8vw, 40px);
+      font-size: clamp(16px, 4vw, 20px);
+      text-transform: uppercase;
+      margin: 4px;
+      border: 2px solid #39ff14;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .hint { 
+      margin-top: 12px;
+      padding: 5px 12px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      display: inline-block;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: clamp(14px, 3.5vw, 16px);
+    }
+    .arrow-hint {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 8px 0;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .arrow-hint span {
+      margin: 0 5px;
+      display: none;
+    }
+    .error-message {
+      color: red;
+      margin-top: 5px;
+      font-size: clamp(12px, 3vw, 14px);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .separator {
+      display: inline-block;
+      margin: 0 5px;
+      color: #333;
+    }
+
+    #reset-confirmation, #hint-confirmation {
+      display: none;
+      margin-top: 10px;
+      font-size: clamp(14px, 3.5vw, 16px);
+    }
+
+    #hint-counter {
+      margin-top: 10px;
+      font-size: clamp(14px, 3.5vw, 16px);
+    }
+
+    @media (min-width: 768px) {
+      .arrow-hint span {
+        display: inline;
+      }
+      
+      .grid-row > div {
+        width: 30px;
+        font-size: 16px;
+      }
+      
+      .help-btn {
+        right: 50px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .grid-row > div {
+        width: calc(20% - 4px);
+        font-size: 12px;
+        padding: 4px 0;
+      }
+      
+      .border-box {
+        padding: 12px;
+      }
+      
+      button {
+        padding: 4px 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div id="date"></div>
+    <h1>Daily Cryptoquip
+      <button id="help-btn" class="help-btn" title="How to Play">
+        <img src="question.png" alt="Help">
+      </button>
+    </h1>
+  </div>
+
+  <div class="container">
+    <div class="border-box">
+      <p><strong>Today's Puzzle:</strong></p>
+      <div id="puzzle-area"></div>
+
+      <div class="hint"><strong>Today's Hint:</strong> W equals B</div>
+
+      <div class="arrow-hint">
+        <span>Enter Ciphered ➜</span>
+        <input id="from" maxlength="1" placeholder="W">
+        <span>Enter Guess ➜</span>
+        <input id="to" maxlength="1" placeholder="B">
+      </div>
+      <div id="error" class="error-message"></div>
+      
+      <div class="button-group">
+        <button onclick="substitute()">Apply</button>
+        <button onclick="undoLast()">Undo</button>
+        <button class="hint-button" onclick="showHintConfirmation()">Hint</button>
+        <button class="reset-button" onclick="showResetConfirmation()">Reset</button>
+        <span class="separator">|</span>
+        <button class="check-button" onclick="toggleCheck()" id="check-btn">Check</button>
+      </div>
+
+      <div id="hint-counter">Hints Used: 0</div>
+
+      <div id="reset-confirmation">
+        <p>Resetting removes all your answers. Proceed?</p>
+        <button onclick="confirmReset()">Yes</button>
+        <button onclick="cancelReset()">Cancel</button>
+      </div>
+      <div id="hint-confirmation">
+        <p>Reveal a letter as a hint. Proceed?</p>
+        <button onclick="applyHint()">Yes</button>
+        <button onclick="cancelHint()">Cancel</button>
+      </div>
+
+      <div id="alphabet-grid-container" style="margin: 20px auto; max-width: 600px;">
+        <!-- First Half (A-M) -->
+        <div class="alphabet-section">
+          <div class="grid-row header-row">
+            <div>A</div><div>B</div><div>C</div><div>D</div><div>E</div>
+            <div>F</div><div>G</div><div>H</div><div>I</div><div>J</div>
+            <div>K</div><div>L</div><div>M</div>
+          </div>
+          <div class="grid-row guess-row">
+            <div data-letter="A">?</div><div data-letter="B">?</div>
+            <div data-letter="C">?</div><div data-letter="D">?</div>
+            <div data-letter="E">?</div><div data-letter="F">?</div>
+            <div data-letter="G">?</div><div data-letter="H">?</div>
+            <div data-letter="I">?</div><div data-letter="J">?</div>
+            <div data-letter="K">?</div><div data-letter="L">?</div>
+            <div data-letter="M">?</div>
+          </div>
+        </div>
+        
+        <div class="grid-spacer"></div>
+        
+        <!-- Second Half (N-Z) -->
+        <div class="alphabet-section">
+          <div class="grid-row header-row">
+            <div>N</div><div>O</div><div>P</div><div>Q</div><div>R</div>
+            <div>S</div><div>T</div><div>U</div><div>V</div><div>W</div>
+            <div>X</div><div>Y</div><div>Z</div>
+          </div>
+          <div class="grid-row guess-row">
+            <div data-letter="N">?</div><div data-letter="O">?</div>
+            <div data-letter="P">?</div><div data-letter="Q">?</div>
+            <div data-letter="R">?</div><div data-letter="S">?</div>
+            <div data-letter="T">?</div><div data-letter="U">?</div>
+            <div data-letter="V">?</div><div data-letter="W">?</div>
+            <div data-letter="X">?</div><div data-letter="Y">?</div>
+            <div data-letter="Z">?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Play Popup -->
+  <div id="how-to-play-popup" class="how-to-play-popup">
+    <div class="htp-content">
+      <button class="htp-close" onclick="closeHTP()">×</button>
+      <h3><u>How to Play:</u></h3>
+      <div class="htp-text">
+        <p>Above is a hidden message encrypted with a simple letter substitution.</p>
+        <p>Use the boxes to guess letter replacements. For example, if you think "G" represents "T", enter "G" and "T" then click <strong>Apply</strong> or press <strong>Enter</strong>.</p>
+        <p><strong>Note:</strong> Just because G = T does <u>not</u> mean T = G. The mapping is one-way.</p>
+        <p>The blanks below the puzzle will fill in as you make guesses. Punctuation and spaces are revealed automatically. Click <strong>Reset</strong> to clear all guesses and start over.</p>
+        <p>Enjoy cracking the code!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Congratulations Popup -->
+  <div id="congrats-popup" class="congrats-popup">
+    <div class="popup-content">
+      <div class="popup-title">Congratulations!</div>
+      <div class="popup-subtitle">You cracked the code!</div>
+      <div id="popup-stats" class="popup-stats"></div>
+      <div id="popup-quote" class="popup-quote"></div>
+       <div class="popup-footer">
+         <button class="popup-close" onclick="closePopup()">Close</button>
+         <div class="divider">|</div>
+         <button class="share-btn" onclick="shareResults()" title="Share Results">
+           <img src="share.png" alt="Share">
+         </button>
+         <div id="copy-feedback" class="copy-feedback"></div>
+       </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    This game was brought to you by @z4chy on Discord. For advertising or inquiries, contact <a href="mailto:dailycryptoquip@gmail.com">dailycryptoquip@gmail.com</a>.
+  </div>
+
+  <script>
+    // Game state
+    let hintCount = 0;
+    let isChecked = false;
+    const puzzleLines = [
+      "QFPHM XHRIPGU RBDKGA QPVF",
+      "VFPN WRNMWRHH DCMB WI",
+      "VFM QPGMBI, P FKBHMA PV",
+      "VFBDKUF VFM UBRXMCPGM."
+    ];
+
+    const solutionLines = [
+      "WHILE PLAYING AROUND WITH",
+      "THIS BASEBALL OVER BY",
+      "THE WINERY, I HURLED IT",
+      "THROUGH THE GRAPEVINE." 
+    ];
+
+    let blanks = puzzleLines.map(line => line.split('').map(ch => /[A-Z]/.test(ch) ? '_' : ch));
+    let history = [];
+
+    // Initialize the game
+    document.getElementById('date').textContent = new Date().toLocaleDateString(undefined, {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    displayPuzzle();
+
+    // Core game functions
+    function displayPuzzle() {
+      const puzzleArea = document.getElementById('puzzle-area');
+      puzzleArea.innerHTML = '';
+
+      puzzleLines.forEach((line, idx) => {
+        const block = document.createElement('div');
+        block.classList.add('puzzle-block');
+
+        const puzzleLine = `<div class='puzzle-line'>${line}</div>`;
+
+        let blanksLine = "<div class='blanks-line'>";
+        blanks[idx].forEach(ch => {
+          if (ch.startsWith('<span')) {
+            blanksLine += ch;
+          } else if (ch !== '_') {
+            blanksLine += `<span class='entered-letter'>${ch}</span>`;
+          } else {
+            blanksLine += '_';
+          }
+        });
+        blanksLine += "</div>";
+
+        block.innerHTML = puzzleLine + blanksLine;
+        puzzleArea.appendChild(block);
+      });
+    }
+
+    function updateAlphabetGrid() {
+      // Clear all guesses first
+      document.querySelectorAll('.guess-row > div').forEach(cell => {
+        cell.textContent = '?';
+        cell.className = '';
+      });
+
+      // Update based on current guesses
+      puzzleLines.forEach((line, row) => {
+        line.split('').forEach((cipherChar, col) => {
+          if (/[A-Z]/.test(cipherChar)) {
+            const guess = blanks[row][col];
+            if (guess !== '_') {
+              const guessedLetter = guess.replace(/<[^>]+>/g, '');
+              const cell = document.querySelector(`.guess-row > div[data-letter="${cipherChar}"]`);
+              
+              if (cell) {
+                cell.textContent = guessedLetter;
+                
+                if (guess.includes('correct-guess')) {
+                  cell.classList.add('correct');
+                } else if (guess.includes('incorrect-guess')) {
+                  cell.classList.add('incorrect');
+                } else if (guess.includes('hint-letter')) {
+                  cell.classList.add('hint');
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+
+    function checkPuzzleComplete() {
+      for (let idx = 0; idx < puzzleLines.length; idx++) {
+        for (let cidx = 0; cidx < puzzleLines[idx].length; cidx++) {
+          if (!/[A-Z]/.test(puzzleLines[idx][cidx])) continue;
+          
+          const userChar = blanks[idx][cidx];
+          if (userChar === '_') return false;
+          
+          let actualChar;
+          if (typeof userChar === 'string' && userChar.includes('span')) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = userChar;
+            actualChar = tempDiv.textContent || tempDiv.innerText;
+          } else {
+            actualChar = userChar;
+          }
+          
+          if (actualChar.trim() !== solutionLines[idx][cidx]) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function substitute() {
+      const from = document.getElementById('from').value.toUpperCase();
+      const to = document.getElementById('to').value.toUpperCase();
+      const error = document.getElementById('error');
+      error.textContent = '';
+
+      if (!from || !to) {
+        error.textContent = "Both fields required.";
+        shakeInputs();
+        return;
+      }
+
+      // Check for duplicate 'to' value
+      for (let i = 0; i < blanks.length; i++) {
+        for (let j = 0; j < blanks[i].length; j++) {
+          const val = blanks[i][j];
+          if (val === to || (typeof val === 'string' && val.includes(to))) {
+            error.textContent = `${to} is already assigned. Try another letter.`;
+            shakeInputs();
+            return;
+          }
+        }
+      }
+
+      history.push(JSON.parse(JSON.stringify(blanks)));
+
+      puzzleLines.forEach((line, idx) => {
+        line.split('').forEach((ch, cidx) => {
+          if (ch === from) blanks[idx][cidx] = `<span class='entered-letter'>${to}</span>`;
+        });
+      });
+
+      updateAlphabetGrid();
+      displayPuzzle();
+
+      // Clear input fields
+      document.getElementById('from').value = '';
+      document.getElementById('to').value = '';
+
+      // Auto-focus the cipher box
+      document.getElementById('from').focus();
+
+      // Check if puzzle is complete after substitution
+      if (checkPuzzleComplete()) {
+        showCongratulationsPopup();
+      }
+    }
+
+    function toggleCheck() {
+      if (!isChecked) {
+        blanks = blanks.map((line, idx) =>
+          line.map((ch, cidx) => {
+            if (typeof ch === 'string' && ch.includes('hint-letter')) return ch;
+
+            const userChar = ch.replace(/<[^>]+>/g, '');
+            const correctChar = solutionLines[idx][cidx];
+
+            if (userChar === '_') return '_';
+
+            if (userChar === correctChar) {
+              return `<span class='correct-guess'>${userChar}</span>`;
+            } else {
+              return `<span class='incorrect-guess'>${userChar}</span>`;
+            }
+          })
+        );
+        isChecked = true;
+        document.getElementById('check-btn').textContent = 'Uncheck';
+      } else {
+        blanks = blanks.map((line, idx) =>
+          line.map((ch, cidx) => {
+            if (typeof ch === 'string' && ch.includes('hint-letter')) return ch;
+
+            const userChar = ch.replace(/<[^>]+>/g, '');
+            if (userChar === '_') return '_';
+            return `<span class='entered-letter'>${userChar}</span>`;
+          })
+        );
+        isChecked = false;
+        document.getElementById('check-btn').textContent = 'Check';
+      }
+
+      updateAlphabetGrid(); 
+      displayPuzzle();
+
+      if (checkPuzzleComplete()) {
+        showCongratulationsPopup();
+      }
+    }
+
+    // Admin functions
+    let adminKeys = [];
+    const ADMIN_CODE = ['Shift', 'Z', 'A', 'C', 'H', 'Y'];
+
+    function getRandomUnsolvedLetter() {
+      const unsolved = [];
+  
+      // Find all unsolved letters
+      for (let i = 0; i < puzzleLines.length; i++) {
+        for (let j = 0; j < puzzleLines[i].length; j++) {
+          if (/[A-Z]/.test(puzzleLines[i][j]) && 
+              (blanks[i][j] === '_' || blanks[i][j].includes('_'))) {
+            unsolved.push({i, j});
+          }
+        }
+      }
+  
+      // Return a random unsolved position
+      return unsolved.length > 0 ? 
+        unsolved[Math.floor(Math.random() * unsolved.length)] : 
+        null;
+    }
+
+    function checkAdminCode(e) {
+      // Add the pressed key to our sequence
+      adminKeys.push(e.key);
+  
+      // Keep only the last 6 keys
+      if (adminKeys.length > ADMIN_CODE.length) {
+        adminKeys.shift();
+      }
+  
+      // Check if sequence matches admin code
+      if (adminKeys.length === ADMIN_CODE.length && 
+          adminKeys.every((key, i) => key === ADMIN_CODE[i])) {
+        adminCompletePuzzle();
+        adminKeys = []; // Reset the sequence
+      }
+    }
+
+    function adminCompletePuzzle() {
+      // Save current state to history
+      history.push(JSON.parse(JSON.stringify(blanks)));
+  
+      // Leave one random letter unsolved
+      const leaveUnsolved = getRandomUnsolvedLetter();
+  
+      // Fill in all other letters
+      for (let i = 0; i < puzzleLines.length; i++) {
+        for (let j = 0; j < puzzleLines[i].length; j++) {
+          if (/[A-Z]/.test(puzzleLines[i][j])) {
+            // Skip the one we're leaving unsolved
+            if (leaveUnsolved && i === leaveUnsolved.i && j === leaveUnsolved.j) {
+              continue;
+            }
+        
+            // Fill in the correct letter
+            blanks[i][j] = `<span class='entered-letter'>${solutionLines[i][j]}</span>`;
+          }
+        }
+      }
+  
+      displayPuzzle();
+  
+      // If we left nothing unsolved (puzzle was already nearly complete)
+      if (!leaveUnsolved && checkPuzzleComplete()) {
+        showCongratulationsPopup();
+      }
+    }
+
+    // Helper functions
+    function shakeInputs() {
+      const fromBox = document.getElementById('from');
+      const toBox = document.getElementById('to');
+      [fromBox, toBox].forEach(box => {
+        box.classList.add('shake');
+        setTimeout(() => box.classList.remove('shake'), 300);
+      });
+    }
+
+    function showCongratulationsPopup() {
+      const popup = document.getElementById('congrats-popup');
+      const statsElement = document.getElementById('popup-stats');
+      const quoteElement = document.getElementById('popup-quote');
+      
+      let incorrectCount = 0;
+      blanks.forEach((line, idx) => {
+        line.forEach((ch, cidx) => {
+          if (ch.includes('incorrect-guess')) {
+            incorrectCount++;
+          }
+        });
+      });
+      
+      statsElement.innerHTML = `Hints Used: ${hintCount}`;
+      quoteElement.innerHTML = solutionLines.join('<br>');
+      popup.style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('congrats-popup').style.display = 'none';
+    }
+
+    function showResetConfirmation() {
+      document.getElementById('reset-confirmation').style.display = 'block';
+    }
+
+    function confirmReset() {
+      blanks = puzzleLines.map(line => line.split('').map(ch => /[A-Z]/.test(ch) ? '_' : ch));
+      history = [];
+      displayPuzzle();
+      document.getElementById('reset-confirmation').style.display = 'none';
+    }
+
+    function cancelReset() {
+      document.getElementById('reset-confirmation').style.display = 'none';
+    }
+
+    function undoLast() {
+      if (history.length) {
+        blanks = history.pop();
+        displayPuzzle();
+      }
+    }
+
+    function showHintConfirmation() {
+      document.getElementById('hint-confirmation').style.display = 'block';
+    }
+
+    function cancelHint() {
+      document.getElementById('hint-confirmation').style.display = 'none';
+    }
+
+    function applyHint() {
+      outer: for (let idx = 0; idx < puzzleLines.length; idx++) {
+        for (let cidx = 0; cidx < puzzleLines[idx].length; cidx++) {
+          if (blanks[idx][cidx] === '_' && /[A-Z]/.test(puzzleLines[idx][cidx])) {
+            let targetChar = puzzleLines[idx][cidx];
+            for (let i = 0; i < puzzleLines.length; i++) {
+              for (let j = 0; j < puzzleLines[i].length; j++) {
+                if (puzzleLines[i][j] === targetChar && blanks[i][j] === '_') {
+                  blanks[i][j] = `<span class='hint-letter'>${solutionLines[i][j]}</span>`;
+                }
+              }
+            }
+            hintCount++;
+            document.getElementById('hint-counter').textContent = `Hints Used: ${hintCount}`;
+            displayPuzzle();
+            document.getElementById('hint-confirmation').style.display = 'none';
+            
+            if (checkPuzzleComplete()) {
+              showCongratulationsPopup();
+            }
+            return;
+          }
+        }
+      }
+    }
+
+    // How to Play functions
+    function toggleHowToPlay() {
+      const popup = document.getElementById('how-to-play-popup');
+      popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function closeHTP() {
+      document.getElementById('how-to-play-popup').style.display = 'none';
+    }
+
+    // Sharing function
+    async function shareResults() {
+      // Generate emoji grid
+      const emojiGrid = puzzleLines.map((line, row) => 
+        line.split('').map((char, col) => {
+          if (!/[A-Z]/.test(char)) return char; // Keep punctuation/spaces
+          return blanks[row][col].includes('hint-letter') ? '🟦' : '🟩';
+        }).join('')
+      ).join('\n');
+
+      // Performance messages
+      const messages = [
+        "Flawless solve! 🎯",
+        "Golden guess! 🌟", 
+        "Well played! ✨",
+        "Puzzle conquered! 💪"
+      ];
+      const performanceMsg = messages[Math.min(hintCount, 3)];
+
+      // Build share text
+      const shareText = 
+        `Daily Cryptoquip\n` +
+        `${hintCount} Hint${hintCount !== 1 ? 's' : ''} used. ${performanceMsg}\n\n` +
+        `🔤 "${puzzleLines[0].substring(0, 6)}..." (${puzzleLines.join(' ').length}-letter puzzle)\n` +
+        `📊 ${emojiGrid}\n\n` +
+        `Can you crack the code? dailycryptoquip.com`;
+
+      // Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareText);
+        const feedback = document.getElementById('copy-feedback');
+        feedback.textContent = "Results copied to clipboard!";
+        setTimeout(() => feedback.textContent = "", 2000);
+      } catch {
+        prompt("Copy your results:", shareText);
+      }
+    }
+
+    // Event listeners
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') substitute();
+      if (e.key === 'ArrowRight') document.getElementById('to').focus();
+      if (e.key === 'ArrowLeft') document.getElementById('from').focus();
+      if (e.key === 'Escape') {
+        if (document.getElementById('congrats-popup').style.display === 'flex') {
+          closePopup();
+        } else if (document.getElementById('how-to-play-popup').style.display === 'flex') {
+          closeHTP();
+        }
+      }
+    });
+
+    document.getElementById('from').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^A-Za-z]/g, '');
+    });
+
+    document.getElementById('to').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^A-Za-z]/g, '');
+    });
+
+    document.getElementById('help-btn').addEventListener('click', toggleHowToPlay);
+    document.addEventListener('keydown', checkAdminCode);
+    document.addEventListener('DOMContentLoaded', updateAlphabetGrid);
+    document.addEventListener('touchstart', function() {}, {passive: true});
+  </script>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBwTABGPou7vdGe9u2Pmrga2iT1EHUHMrc",
+    authDomain: "daily-cryptoquip.firebaseapp.com",
+    projectId: "daily-cryptoquip",
+    storageBucket: "daily-cryptoquip.firebasestorage.app",
+    messagingSenderId: "861831239414",
+    appId: "1:861831239414:web:204d368e88549ea5ef3ed7",
+    measurementId: "G-C7YBW8GZPM"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</body>
+</html>
