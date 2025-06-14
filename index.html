@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="description" content="Crack the daily encrypted quote! Play a new cryptoquip puzzle every day and challenge your brain.">
+  <meta name="keywords" content="cryptoquip, cryptogram, cryptogram, word puzzle, brain teaser, cipher game, daily puzzle, cecil, daily cryptoquip">
+  <meta name="robots" content="index, follow">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Cryptoquip</title>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="cryptoquip_logo.png">
+  <link rel="canonical" href="https://www.dailycryptoquip.com/">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7570286953645981"
+       crossorigin="anonymous"></script>
   
   <style>
     @keyframes shake {
@@ -151,12 +159,15 @@
     .grid-row > div {
       width: 30px;
       padding: 6px 0;
-      text-align: center;
+      /* text-align: center; -- Removed for flex centering */
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 3px;
       font-family: 'Courier New', monospace;
       font-size: 14px;
       box-sizing: border-box;
+      display: flex; /* Added for centering content */
+      align-items: center; /* Added for centering content */
+      justify-content: center; /* Added for centering content */
     }
 
     .header-row > div {
@@ -166,7 +177,7 @@
 
     .guess-row > div {
       background: rgba(255,255,255,0.1);
-      min-height: 20px;
+      min-height: 20px; 
     }
 
     /* Color coding */
@@ -223,16 +234,14 @@
     }
 
     /* Help Button */
-    .help-btn {
-      position: absolute;
-      right: 10px;
-      top: 30%;
-      transform: translateY(-50%);
+    .help-btn { /* General style for help button */
       background: none;
       border: none;
       cursor: pointer;
       opacity: 1;
       transition: opacity 0.2s;
+      padding: 0; /* Reset padding for flex item */
+      line-height: 1; /* Reset line-height for flex item */
     }
 
     .help-btn:hover {
@@ -242,6 +251,7 @@
     .help-btn img {
       width: clamp(40px, 8vw, 65px);
       height: clamp(35px, 7vw, 57px);
+      display: block; /* Ensure image behaves as a block */
     }
 
     .footer {
@@ -371,11 +381,11 @@
       font-size: clamp(12px, 3vw, 16px);
       margin-bottom: 5px;
     }
-    h1 {
-      margin: 0;
+    h1 { /* Title container */
+      margin: 0 auto; /* Centering h1 block */
       font-size: clamp(28px, 6vw, 40px);
       font-family: 'Luckiest Guy', cursive;
-      position: relative;
+      position: relative; /* For help button positioning if it were absolute */
     }
     .container { 
       text-align: center;
@@ -425,7 +435,7 @@
     }
     .arrow-hint span {
       margin: 0 5px;
-      display: none;
+      display: none; /* Hidden by default, shown in media query */
     }
     .error-message {
       color: red;
@@ -464,18 +474,22 @@
       }
       
       .grid-row > div {
-        width: 30px;
+        width: 30px; /* Ensure this is not smaller than mobile if needed */
         font-size: 16px;
       }
       
+      /* Help button general absolute positioning for larger screens */
       .help-btn {
+        position: absolute; 
         right: 50px;
+        top: 30%; /* Or 50% if that looks better consistently */
+        transform: translateY(-50%);
       }
     }
 
     @media (max-width: 480px) {
       .grid-row > div {
-        width: calc(20% - 4px);
+        width: calc(20% - 4px); /* Example from original, adjust if needed */
         font-size: 12px;
         padding: 4px 0;
       }
@@ -487,13 +501,31 @@
       button {
         padding: 4px 7px;
       }
+
+      /* Mobile specific header layout */
+      h1 { /* Title container */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%; /* Occupy available space within header padding */
+        max-width: 100%; /* Ensure it doesn't overflow header content area */
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .help-btn { /* Becomes a flex item within h1 */
+        position: static; /* Override absolute positioning */
+        transform: none; /* Remove transform */
+        margin-left: 8px; /* Space it from the title text */
+        /* top, right are irrelevant now */
+      }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <div id="date"></div>
-    <h1>Daily Cryptoquip
+    <div id="date"></div> <!-- Date will be set by JS -->
+    <h1>Daily Cryptoquip <!-- Help button is now a child, will be part of flex layout on mobile -->
       <button id="help-btn" class="help-btn" title="How to Play">
         <img src="question.png" alt="Help">
       </button>
@@ -503,15 +535,15 @@
   <div class="container">
     <div class="border-box">
       <p><strong>Today's Puzzle:</strong></p>
-      <div id="puzzle-area"></div>
+      <div id="puzzle-area"><p>Loading puzzle...</p></div> <!-- Loading message -->
 
-      <div class="hint"><strong>Today's Hint:</strong> W equals B</div>
+      <div class="hint"><strong>Today's Hint:</strong> <!-- Hint will be loaded here --> </div>
 
       <div class="arrow-hint">
         <span>Enter Ciphered ➜</span>
-        <input id="from" maxlength="1" placeholder="W">
+        <input id="from" maxlength="1" placeholder=""> <!-- Placeholder set by JS -->
         <span>Enter Guess ➜</span>
-        <input id="to" maxlength="1" placeholder="B">
+        <input id="to" maxlength="1" placeholder=""> <!-- Placeholder set by JS -->
       </div>
       <div id="error" class="error-message"></div>
       
@@ -613,468 +645,39 @@
   </div>
 
   <div class="footer">
-    This game was brought to you by @z4chy on Discord. For advertising or inquiries, contact <a href="mailto:dailycryptoquip@gmail.com">dailycryptoquip@gmail.com</a>.
+    This game was brought to you by @z4chy on Discord. For advertising or inquiries, contact <a href="mailto:dailycryptoquip@gmail.com">dailycryptoquip@gmail.com</a>.<br>
+    <a href="/privacy">Privacy Policy</a>
   </div>
 
-  <script>
-    // Game state
-    let hintCount = 0;
-    let isChecked = false;
-    const puzzleLines = [
-      "QFPHM XHRIPGU RBDKGA QPVF",
-      "VFPN WRNMWRHH DCMB WI",
-      "VFM QPGMBI, P FKBHMA PV",
-      "VFBDKUF VFM UBRXMCPGM."
-    ];
 
-    const solutionLines = [
-      "WHILE PLAYING AROUND WITH",
-      "THIS BASEBALL OVER BY",
-      "THE WINERY, I HURLED IT",
-      "THROUGH THE GRAPEVINE." 
-    ];
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js"; // Added Firestore
 
-    let blanks = puzzleLines.map(line => line.split('').map(ch => /[A-Z]/.test(ch) ? '_' : ch));
-    let history = [];
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBwTABGPou7vdGe9u2Pmrga2iT1EHUHMrc", // Replace with your actual API key if this is a placeholder
+      authDomain: "daily-cryptoquip.firebaseapp.com",
+      projectId: "daily-cryptoquip",
+      storageBucket: "daily-cryptoquip.firebasestorage.app",
+      messagingSenderId: "861831239414",
+      appId: "1:861831239414:web:204d368e88549ea5ef3ed7",
+      measurementId: "G-C7YBW8GZPM"
+    };
 
-    // Initialize the game
-    document.getElementById('date').textContent = new Date().toLocaleDateString(undefined, {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-    displayPuzzle();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app); // Initialized Firestore
 
-    // Core game functions
-    function displayPuzzle() {
-      const puzzleArea = document.getElementById('puzzle-area');
-      puzzleArea.innerHTML = '';
-
-      puzzleLines.forEach((line, idx) => {
-        const block = document.createElement('div');
-        block.classList.add('puzzle-block');
-
-        const puzzleLine = `<div class='puzzle-line'>${line}</div>`;
-
-        let blanksLine = "<div class='blanks-line'>";
-        blanks[idx].forEach(ch => {
-          if (ch.startsWith('<span')) {
-            blanksLine += ch;
-          } else if (ch !== '_') {
-            blanksLine += `<span class='entered-letter'>${ch}</span>`;
-          } else {
-            blanksLine += '_';
-          }
-        });
-        blanksLine += "</div>";
-
-        block.innerHTML = puzzleLine + blanksLine;
-        puzzleArea.appendChild(block);
-      });
-    }
-
-    function updateAlphabetGrid() {
-      // Clear all guesses first
-      document.querySelectorAll('.guess-row > div').forEach(cell => {
-        cell.textContent = '?';
-        cell.className = '';
-      });
-
-      // Update based on current guesses
-      puzzleLines.forEach((line, row) => {
-        line.split('').forEach((cipherChar, col) => {
-          if (/[A-Z]/.test(cipherChar)) {
-            const guess = blanks[row][col];
-            if (guess !== '_') {
-              const guessedLetter = guess.replace(/<[^>]+>/g, '');
-              const cell = document.querySelector(`.guess-row > div[data-letter="${cipherChar}"]`);
-              
-              if (cell) {
-                cell.textContent = guessedLetter;
-                
-                if (guess.includes('correct-guess')) {
-                  cell.classList.add('correct');
-                } else if (guess.includes('incorrect-guess')) {
-                  cell.classList.add('incorrect');
-                } else if (guess.includes('hint-letter')) {
-                  cell.classList.add('hint');
-                }
-              }
-            }
-          }
-        });
-      });
-    }
-
-    function checkPuzzleComplete() {
-      for (let idx = 0; idx < puzzleLines.length; idx++) {
-        for (let cidx = 0; cidx < puzzleLines[idx].length; cidx++) {
-          if (!/[A-Z]/.test(puzzleLines[idx][cidx])) continue;
-          
-          const userChar = blanks[idx][cidx];
-          if (userChar === '_') return false;
-          
-          let actualChar;
-          if (typeof userChar === 'string' && userChar.includes('span')) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = userChar;
-            actualChar = tempDiv.textContent || tempDiv.innerText;
-          } else {
-            actualChar = userChar;
-          }
-          
-          if (actualChar.trim() !== solutionLines[idx][cidx]) {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    function substitute() {
-      const from = document.getElementById('from').value.toUpperCase();
-      const to = document.getElementById('to').value.toUpperCase();
-      const error = document.getElementById('error');
-      error.textContent = '';
-
-      if (!from || !to) {
-        error.textContent = "Both fields required.";
-        shakeInputs();
-        return;
-      }
-
-      // Check for duplicate 'to' value
-      for (let i = 0; i < blanks.length; i++) {
-        for (let j = 0; j < blanks[i].length; j++) {
-          const val = blanks[i][j];
-          if (val === to || (typeof val === 'string' && val.includes(to))) {
-            error.textContent = `${to} is already assigned. Try another letter.`;
-            shakeInputs();
-            return;
-          }
-        }
-      }
-
-      history.push(JSON.parse(JSON.stringify(blanks)));
-
-      puzzleLines.forEach((line, idx) => {
-        line.split('').forEach((ch, cidx) => {
-          if (ch === from) blanks[idx][cidx] = `<span class='entered-letter'>${to}</span>`;
-        });
-      });
-
-      updateAlphabetGrid();
-      displayPuzzle();
-
-      // Clear input fields
-      document.getElementById('from').value = '';
-      document.getElementById('to').value = '';
-
-      // Auto-focus the cipher box
-      document.getElementById('from').focus();
-
-      // Check if puzzle is complete after substitution
-      if (checkPuzzleComplete()) {
-        showCongratulationsPopup();
-      }
-    }
-
-    function toggleCheck() {
-      if (!isChecked) {
-        blanks = blanks.map((line, idx) =>
-          line.map((ch, cidx) => {
-            if (typeof ch === 'string' && ch.includes('hint-letter')) return ch;
-
-            const userChar = ch.replace(/<[^>]+>/g, '');
-            const correctChar = solutionLines[idx][cidx];
-
-            if (userChar === '_') return '_';
-
-            if (userChar === correctChar) {
-              return `<span class='correct-guess'>${userChar}</span>`;
-            } else {
-              return `<span class='incorrect-guess'>${userChar}</span>`;
-            }
-          })
-        );
-        isChecked = true;
-        document.getElementById('check-btn').textContent = 'Uncheck';
-      } else {
-        blanks = blanks.map((line, idx) =>
-          line.map((ch, cidx) => {
-            if (typeof ch === 'string' && ch.includes('hint-letter')) return ch;
-
-            const userChar = ch.replace(/<[^>]+>/g, '');
-            if (userChar === '_') return '_';
-            return `<span class='entered-letter'>${userChar}</span>`;
-          })
-        );
-        isChecked = false;
-        document.getElementById('check-btn').textContent = 'Check';
-      }
-
-      updateAlphabetGrid(); 
-      displayPuzzle();
-
-      if (checkPuzzleComplete()) {
-        showCongratulationsPopup();
-      }
-    }
-
-    // Admin functions
-    let adminKeys = [];
-    const ADMIN_CODE = ['Shift', 'Z', 'A', 'C', 'H', 'Y'];
-
-    function getRandomUnsolvedLetter() {
-      const unsolved = [];
-  
-      // Find all unsolved letters
-      for (let i = 0; i < puzzleLines.length; i++) {
-        for (let j = 0; j < puzzleLines[i].length; j++) {
-          if (/[A-Z]/.test(puzzleLines[i][j]) && 
-              (blanks[i][j] === '_' || blanks[i][j].includes('_'))) {
-            unsolved.push({i, j});
-          }
-        }
-      }
-  
-      // Return a random unsolved position
-      return unsolved.length > 0 ? 
-        unsolved[Math.floor(Math.random() * unsolved.length)] : 
-        null;
-    }
-
-    function checkAdminCode(e) {
-      // Add the pressed key to our sequence
-      adminKeys.push(e.key);
-  
-      // Keep only the last 6 keys
-      if (adminKeys.length > ADMIN_CODE.length) {
-        adminKeys.shift();
-      }
-  
-      // Check if sequence matches admin code
-      if (adminKeys.length === ADMIN_CODE.length && 
-          adminKeys.every((key, i) => key === ADMIN_CODE[i])) {
-        adminCompletePuzzle();
-        adminKeys = []; // Reset the sequence
-      }
-    }
-
-    function adminCompletePuzzle() {
-      // Save current state to history
-      history.push(JSON.parse(JSON.stringify(blanks)));
-  
-      // Leave one random letter unsolved
-      const leaveUnsolved = getRandomUnsolvedLetter();
-  
-      // Fill in all other letters
-      for (let i = 0; i < puzzleLines.length; i++) {
-        for (let j = 0; j < puzzleLines[i].length; j++) {
-          if (/[A-Z]/.test(puzzleLines[i][j])) {
-            // Skip the one we're leaving unsolved
-            if (leaveUnsolved && i === leaveUnsolved.i && j === leaveUnsolved.j) {
-              continue;
-            }
-        
-            // Fill in the correct letter
-            blanks[i][j] = `<span class='entered-letter'>${solutionLines[i][j]}</span>`;
-          }
-        }
-      }
-  
-      displayPuzzle();
-  
-      // If we left nothing unsolved (puzzle was already nearly complete)
-      if (!leaveUnsolved && checkPuzzleComplete()) {
-        showCongratulationsPopup();
-      }
-    }
-
-    // Helper functions
-    function shakeInputs() {
-      const fromBox = document.getElementById('from');
-      const toBox = document.getElementById('to');
-      [fromBox, toBox].forEach(box => {
-        box.classList.add('shake');
-        setTimeout(() => box.classList.remove('shake'), 300);
-      });
-    }
-
-    function showCongratulationsPopup() {
-      const popup = document.getElementById('congrats-popup');
-      const statsElement = document.getElementById('popup-stats');
-      const quoteElement = document.getElementById('popup-quote');
-      
-      let incorrectCount = 0;
-      blanks.forEach((line, idx) => {
-        line.forEach((ch, cidx) => {
-          if (ch.includes('incorrect-guess')) {
-            incorrectCount++;
-          }
-        });
-      });
-      
-      statsElement.innerHTML = `Hints Used: ${hintCount}`;
-      quoteElement.innerHTML = solutionLines.join('<br>');
-      popup.style.display = 'flex';
-    }
-
-    function closePopup() {
-      document.getElementById('congrats-popup').style.display = 'none';
-    }
-
-    function showResetConfirmation() {
-      document.getElementById('reset-confirmation').style.display = 'block';
-    }
-
-    function confirmReset() {
-      blanks = puzzleLines.map(line => line.split('').map(ch => /[A-Z]/.test(ch) ? '_' : ch));
-      history = [];
-      displayPuzzle();
-      document.getElementById('reset-confirmation').style.display = 'none';
-    }
-
-    function cancelReset() {
-      document.getElementById('reset-confirmation').style.display = 'none';
-    }
-
-    function undoLast() {
-      if (history.length) {
-        blanks = history.pop();
-        displayPuzzle();
-      }
-    }
-
-    function showHintConfirmation() {
-      document.getElementById('hint-confirmation').style.display = 'block';
-    }
-
-    function cancelHint() {
-      document.getElementById('hint-confirmation').style.display = 'none';
-    }
-
-    function applyHint() {
-      outer: for (let idx = 0; idx < puzzleLines.length; idx++) {
-        for (let cidx = 0; cidx < puzzleLines[idx].length; cidx++) {
-          if (blanks[idx][cidx] === '_' && /[A-Z]/.test(puzzleLines[idx][cidx])) {
-            let targetChar = puzzleLines[idx][cidx];
-            for (let i = 0; i < puzzleLines.length; i++) {
-              for (let j = 0; j < puzzleLines[i].length; j++) {
-                if (puzzleLines[i][j] === targetChar && blanks[i][j] === '_') {
-                  blanks[i][j] = `<span class='hint-letter'>${solutionLines[i][j]}</span>`;
-                }
-              }
-            }
-            hintCount++;
-            document.getElementById('hint-counter').textContent = `Hints Used: ${hintCount}`;
-            displayPuzzle();
-            document.getElementById('hint-confirmation').style.display = 'none';
-            
-            if (checkPuzzleComplete()) {
-              showCongratulationsPopup();
-            }
-            return;
-          }
-        }
-      }
-    }
-
-    // How to Play functions
-    function toggleHowToPlay() {
-      const popup = document.getElementById('how-to-play-popup');
-      popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
-    }
-
-    function closeHTP() {
-      document.getElementById('how-to-play-popup').style.display = 'none';
-    }
-
-    // Sharing function
-    async function shareResults() {
-      // Generate emoji grid
-      const emojiGrid = puzzleLines.map((line, row) => 
-        line.split('').map((char, col) => {
-          if (!/[A-Z]/.test(char)) return char; // Keep punctuation/spaces
-          return blanks[row][col].includes('hint-letter') ? '🟦' : '🟩';
-        }).join('')
-      ).join('\n');
-
-      // Performance messages
-      const messages = [
-        "Flawless solve! 🎯",
-        "Golden guess! 🌟", 
-        "Well played! ✨",
-        "Puzzle conquered! 💪"
-      ];
-      const performanceMsg = messages[Math.min(hintCount, 3)];
-
-      // Build share text
-      const shareText = 
-        `Daily Cryptoquip\n` +
-        `${hintCount} Hint${hintCount !== 1 ? 's' : ''} used. ${performanceMsg}\n\n` +
-        `🔤 "${puzzleLines[0].substring(0, 6)}..." (${puzzleLines.join(' ').length}-letter puzzle)\n` +
-        `📊 ${emojiGrid}\n\n` +
-        `Can you crack the code? dailycryptoquip.com`;
-
-      // Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(shareText);
-        const feedback = document.getElementById('copy-feedback');
-        feedback.textContent = "Results copied to clipboard!";
-        setTimeout(() => feedback.textContent = "", 2000);
-      } catch {
-        prompt("Copy your results:", shareText);
-      }
-    }
-
-    // Event listeners
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') substitute();
-      if (e.key === 'ArrowRight') document.getElementById('to').focus();
-      if (e.key === 'ArrowLeft') document.getElementById('from').focus();
-      if (e.key === 'Escape') {
-        if (document.getElementById('congrats-popup').style.display === 'flex') {
-          closePopup();
-        } else if (document.getElementById('how-to-play-popup').style.display === 'flex') {
-          closeHTP();
-        }
-      }
-    });
-
-    document.getElementById('from').addEventListener('input', function(e) {
-      this.value = this.value.replace(/[^A-Za-z]/g, '');
-    });
-
-    document.getElementById('to').addEventListener('input', function(e) {
-      this.value = this.value.replace(/[^A-Za-z]/g, '');
-    });
-
-    document.getElementById('help-btn').addEventListener('click', toggleHowToPlay);
-    document.addEventListener('keydown', checkAdminCode);
-    document.addEventListener('DOMContentLoaded', updateAlphabetGrid);
-    document.addEventListener('touchstart', function() {}, {passive: true});
+    // Make Firestore utilities available globally for the other script
+    window.fb_db = db; // Renamed to avoid conflict if 'db' is used elsewhere
+    window.fb_doc = doc;
+    window.fb_getDoc = getDoc;
   </script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyBwTABGPou7vdGe9u2Pmrga2iT1EHUHMrc",
-    authDomain: "daily-cryptoquip.firebaseapp.com",
-    projectId: "daily-cryptoquip",
-    storageBucket: "daily-cryptoquip.firebasestorage.app",
-    messagingSenderId: "861831239414",
-    appId: "1:861831239414:web:204d368e88549ea5ef3ed7",
-    measurementId: "G-C7YBW8GZPM"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+<script src="main.obf.js"></script>
 </body>
 </html>
