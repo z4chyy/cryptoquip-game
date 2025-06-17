@@ -385,8 +385,45 @@
       margin: 0 auto; /* Centering h1 block */
       font-size: clamp(28px, 6vw, 40px);
       font-family: 'Luckiest Guy', cursive;
-      position: relative; /* For help button positioning if it were absolute */
+      display: flex;
+      align-items: center; /* Vertically center items in h1 */
+      justify-content: center; /* Center the title text by default */
+      position: relative; /* Keep for absolute positioning of children */
     }
+
+    /* Ko-fi Button General Styles */
+    #kofi-btn {
+      background: none;
+      border: none;
+      padding: 0; /* Reset padding */
+      line-height: 1; /* Reset line-height */
+      display: inline-block; /* To allow proper sizing of the button around the widget */
+      vertical-align: middle; /* Align with text in h1 if needed */
+      text-decoration: none;
+    }
+    
+    /* Adjust title text to take up space and allow side buttons */
+    .title-text {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    /* Specific styling for Ko-fi button to mirror help-btn */
+    #kofi-btn {
+        /* This will be similar to .help-btn but positioned left */
+        width: clamp(40px, 8vw, 65px); /* Match .help-btn img width */
+        height: clamp(35px, 7vw, 57px); /* Match .help-btn img height */
+        /* The Ko-fi widget itself will be drawn by its script. We ensure the button container has the right size. */
+    }
+
+    /* Style for the image within the Ko-fi button/link */
+    #kofi-btn img {
+      display: block; /* Remove extra space below image */
+      width: 100%;   /* Make image fill the <a> tag's width */
+      height: 100%;  /* Make image fill the <a> tag's height */
+      object-fit: contain; /* Ensure aspect ratio is maintained */
+    }
+
     .container { 
       text-align: center;
       padding: clamp(80px, 15vw, 110px) 10px 30px;
@@ -469,6 +506,14 @@
     }
 
     @media (min-width: 768px) {
+      /* Ko-fi button absolute positioning */
+      #kofi-btn {
+        position: absolute;
+        left: 50px; /* Adjust as needed */
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
       .arrow-hint span {
         display: inline;
       }
@@ -482,8 +527,12 @@
       .help-btn {
         position: absolute; 
         right: 50px;
-        top: 30%; /* Or 50% if that looks better consistently */
+        top: 50%; /* Adjusted from 30% for consistency */
         transform: translateY(-50%);
+      }
+      /* h1 on larger screens, title text centered */
+      h1 {
+        justify-content: center; 
       }
     }
 
@@ -505,19 +554,19 @@
       /* Mobile specific header layout */
       h1 { /* Title container */
         display: flex;
-        justify-content: center;
+        justify-content: space-between; /* Pushes Ko-fi to left, Help to right */
         align-items: center;
-        width: 100%; /* Occupy available space within header padding */
-        max-width: 100%; /* Ensure it doesn't overflow header content area */
-        margin-left: auto;
-        margin-right: auto;
       }
 
-      .help-btn { /* Becomes a flex item within h1 */
+      #kofi-btn, .help-btn { /* Become flex items within h1 */
         position: static; /* Override absolute positioning */
         transform: none; /* Remove transform */
-        margin-left: 8px; /* Space it from the title text */
+        margin: 0; /* Remove any margins, rely on space-between */
         /* top, right are irrelevant now */
+      }
+      /* Adjust title text on mobile if it gets too squeezed */
+      .title-text {
+          margin: 0 5px; /* Add some space around title text */
       }
     }
   </style>
@@ -525,7 +574,9 @@
 <body>
   <div class="header">
     <div id="date"></div> <!-- Date will be set by JS -->
-    <h1>Daily Cryptoquip <!-- Help button is now a child, will be part of flex layout on mobile -->
+    <h1><a id="kofi-btn" class="header-btn" href="https://ko-fi.com/dailycryptoquip" title="spare change?">
+     <img src="kofi.png" alt="Support us on Ko-fi">
+   </a><span class="title-text">Daily Cryptoquip</span> <!-- Help button is now a child, will be part of flex layout on mobile -->
       <button id="help-btn" class="help-btn" title="How to Play">
         <img src="question.png" alt="Help">
       </button>

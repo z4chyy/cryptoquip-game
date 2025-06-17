@@ -1,4 +1,3 @@
-  <script>
     // Game state variables to be populated from Firestore
     let puzzleLines = [];
     let solutionLines = [];
@@ -422,22 +421,49 @@
 
       const messages = ["Flawless solve! 🎯", "Golden guess! 🌟", "Well played! ✨", "Puzzle conquered! 💪"];
       const performanceMsg = messages[Math.min(hintCount, 3)];
-      const shareText = 
+     const siteUrl = "https://dailycryptoquip.com"; // Or window.location.href
+      // Ensure newlines are actual newline characters for the navigator.share text property
+      const shareTextContent = 
         `Daily Cryptoquip\n` +
         `${hintCount} Hint${hintCount !== 1 ? 's' : ''} used. ${performanceMsg}\n\n` +
         `🔤 "${puzzleLines.length > 0 ? puzzleLines[0].substring(0, 6) : 'Puzzle'}..." (${puzzleLines.join(' ').length}-letter puzzle)\n` +
         `📊 ${emojiGrid}\n\n` +
-        `Can you crack the code? dailycryptoquip.com`; // Replace with actual URL if different
+        `Can you crack the code?`; // URL will be added separately for navigator.share
 
-      try {
-        await navigator.clipboard.writeText(shareText.replace(/\\n/g, '\n')); // Ensure newlines are correct
-        const feedback = document.getElementById('copy-feedback');
-        feedback.textContent = "Results copied to clipboard!";
-        setTimeout(() => feedback.textContent = "", 2000);
-      } catch (err) {
-        console.error('Failed to copy results: ', err);
-        prompt("Copy your results:", shareText.replace(/\\n/g, '\n'));
-      }
+     if (navigator.share) {
+       try {
+         await navigator.share({
+           title: 'Daily Cryptoquip Results',
+           text: shareTextContent.replace(/\\n/g, '\n'), // Replace escaped newlines with actual newlines for share text
+           url: siteUrl,
+         });
+         // Optionally, provide feedback if needed, though native share UI is usually enough
+         // const feedback = document.getElementById('copy-feedback');
+         // feedback.textContent = "Shared successfully!";
+         // setTimeout(() => feedback.textContent = "", 2000);
+       } catch (err) {
+         console.error('Error using Web Share API:', err);
+         // Handle errors, e.g., if the user cancels the share
+         // No specific error message to user needed unless it's not an AbortError
+         // if (err.name !== 'AbortError') {
+         //   const feedback = document.getElementById('copy-feedback');
+         //   feedback.textContent = "Could not share: " + err.message;
+         //   setTimeout(() => feedback.textContent = "", 2000);
+         // }
+       }
+     } else {
+       // Fallback to existing clipboard copy logic
+       const fullShareTextForClipboard = shareTextContent.replace(/\\n/g, '\n') + `\n${siteUrl}`;
+       try {
+         await navigator.clipboard.writeText(fullShareTextForClipboard);
+         const feedback = document.getElementById('copy-feedback');
+         feedback.textContent = "Results copied to clipboard!";
+         setTimeout(() => feedback.textContent = "", 2000);
+       } catch (err) {
+         console.error('Failed to copy results: ', err);
+         prompt("Copy your results:", fullShareTextForClipboard);
+       }
+     }
     }
 
     // Event listeners
@@ -481,5 +507,3 @@
       // Removed document.addEventListener('DOMContentLoaded', updateAlphabetGrid); as it's called after fetch
       document.addEventListener('touchstart', function() {}, {passive: true}); // For :active styles on touch
     });
-
-  </script>
