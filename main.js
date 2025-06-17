@@ -24,11 +24,30 @@
         return;
       }
 
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const documentIdByDate = `${year}-${month}-${day}`;
+const params = new URLSearchParams(window.location.search);
+const testDate = params.get('testdate');
+let documentIdByDate;
+
+const today = new Date(); // ✅ Must be defined for both cases
+
+if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
+  documentIdByDate = testDate;
+  console.log("🧪 Loading puzzle for test date:", testDate);
+  if (dateDisplay) {
+    dateDisplay.textContent = `Testing Puzzle for: ${testDate}`;
+  }
+} else {
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  documentIdByDate = `${year}-${month}-${day}`;
+  if (dateDisplay) {
+    dateDisplay.textContent = today.toLocaleDateString(undefined, {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+}
+
 
 
       

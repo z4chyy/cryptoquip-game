@@ -10,9 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="cryptoquip_logo.png">
   <link rel="canonical" href="https://www.dailycryptoquip.com/">
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7570286953645981"
-       crossorigin="anonymous"></script>
   
   <style>
     @keyframes shake {
@@ -554,7 +551,7 @@
       /* Mobile specific header layout */
       h1 { /* Title container */
         display: flex;
-        justify-content: space-between; /* Pushes Ko-fi to left, Help to right */
+        justify-content: center; /* Pushes Ko-fi to left, Help to right */
         align-items: center;
       }
 
@@ -562,11 +559,12 @@
         position: static; /* Override absolute positioning */
         transform: none; /* Remove transform */
         margin: 0; /* Remove any margins, rely on space-between */
+        flex-shrink: 1;
         /* top, right are irrelevant now */
       }
       /* Adjust title text on mobile if it gets too squeezed */
       .title-text {
-          margin: 0 5px; /* Add some space around title text */
+          margin: 0 8px; /* Add some space around title text */
       }
     }
   </style>
