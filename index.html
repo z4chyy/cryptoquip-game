@@ -245,12 +245,20 @@
       opacity: 0.8;
     }
 
-    .help-btn img {
-      width: clamp(40px, 8vw, 65px);
-      height: clamp(35px, 7vw, 57px);
-      display: block; /* Ensure image behaves as a block */
-    }
+.help-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 
+@media (min-width: 481px) {
+  /* Desktop-specific image sizing */
+  .help-btn img {
+    width: clamp(40px, 8vw, 65px);
+    height: clamp(35px, 7vw, 57px);
+  }
+}
     .footer {
       text-align: center;
       font-size: clamp(12px, 3vw, 14px);
@@ -548,25 +556,48 @@
         padding: 4px 7px;
       }
 
-      /* Mobile specific header layout */
-      h1 { /* Title container */
-        display: flex;
-        justify-content: center; /* Pushes Ko-fi to left, Help to right */
-        align-items: center;
-      }
+/* Mobile specific header layout */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 0px; /* Reduce header padding on mobile */
+  }
 
-      #kofi-btn, .help-btn { /* Become flex items within h1 */
-        position: static; /* Override absolute positioning */
-        transform: none; /* Remove transform */
-        margin: 0; /* Remove any margins, rely on space-between */
-        flex-shrink: 1;
-        /* top, right are irrelevant now */
-      }
-      /* Adjust title text on mobile if it gets too squeezed */
-      .title-text {
-          margin: 0 8px; /* Add some space around title text */
-      }
-    }
+  h1 {
+    display: flex;
+    gap: 280px; /* Adjust this value to move buttons closer/further from title on each side */
+    align-items: center;
+    width: 100%;
+    position: relative; /* Needed for proper stacking */
+  }
+
+  #kofi-btn, .help-btn {
+    position: static;
+    transform: none;
+    margin: 0;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+    margin-top: -10px; /* Raises/lowers buttons */
+    width: 35px; /* Fixed width for both buttons */
+    height: 35px; /* Fixed height for consistency */
+    z-index: 1; /* Ensure buttons stay above other elements */
+  }
+
+  .title-text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: 0 auto;
+    padding: 0 35px; /* Equal to button width to prevent overlap */
+    pointer-events: none; /* Allow clicks through to buttons */
+    z-index: 0; /* Send text behind buttons */
+  }
+
+  #date {
+    margin-top: 5px; /* Add space between title and date */
+    position: relative; /* Ensure date stays below title */
+    z-index: 0;
+  }
+}
   </style>
 </head>
 <body>
