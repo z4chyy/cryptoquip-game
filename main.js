@@ -1,11 +1,11 @@
-    // Game state variables to be populated from Firestore
+// Game state variables to be populated from Firestore
     let puzzleLines = [];
     let solutionLines = [];
     let blanks = [];
     let currentHintText = "";
     let currentFromLetter = "";
     let currentToLetter = "";
-    
+
     let history = [];
     let hintCount = 0;
     let isChecked = false;
@@ -50,7 +50,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
 
 
 
-      
+
       if (dateDisplay) {
         dateDisplay.textContent = today.toLocaleDateString(undefined, {
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -64,7 +64,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
 
         if (docSnap.exists()) {
           const puzzleData = docSnap.data();
-          
+
           puzzleLines = puzzleData.puzzleLines || [];
           solutionLines = puzzleData.solutionLines || [];
           currentHintText = puzzleData.hint || "";
@@ -78,19 +78,19 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
           }
 
           blanks = puzzleLines.map(line => line.split('').map(ch => /[A-Z]/.test(ch) ? '_' : ch));
-          history = []; 
+          history = [];
 
           const hintContainer = document.querySelector('.hint');
           if (hintContainer) {
             hintContainer.innerHTML = `<strong>Today's Hint:</strong> ${currentHintText}`;
           }
-          
+
           const fromInputElement = document.getElementById('from');
           const toInputElement = document.getElementById('to');
           if (fromInputElement) fromInputElement.placeholder = currentFromLetter;
           if (toInputElement) toInputElement.placeholder = currentToLetter;
 
-          displayPuzzle(); 
+          displayPuzzle();
           updateAlphabetGrid();
 
         } else {
@@ -159,12 +159,12 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
                 tempDiv.innerHTML = guess;
                 guessedLetter = tempDiv.textContent || tempDiv.innerText || '';
               }
-              
+
               const cell = document.querySelector(`.guess-row > div[data-letter="${cipherChar}"]`);
-              
+
               if (cell) {
                 cell.textContent = guessedLetter;
-                
+
                 // Add class based on the span's class if present
                 if (typeof guess === 'string') {
                     if (guess.includes('correct-guess')) cell.classList.add('correct');
@@ -183,10 +183,10 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
       for (let idx = 0; idx < puzzleLines.length; idx++) {
         for (let cidx = 0; cidx < puzzleLines[idx].length; cidx++) {
           if (!/[A-Z]/.test(puzzleLines[idx][cidx])) continue;
-          
+
           const userCharEntry = blanks[idx][cidx];
           if (userCharEntry === '_') return false;
-          
+
           let actualUserChar;
           if (typeof userCharEntry === 'string' && userCharEntry.includes('span')) {
             const tempDiv = document.createElement('div');
@@ -195,7 +195,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
           } else {
             actualUserChar = userCharEntry;
           }
-          
+
           if (actualUserChar.trim() !== solutionLines[idx][cidx]) {
             return false;
           }
@@ -260,7 +260,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
           line.map((ch, cidx) => {
             if (typeof ch === 'string' && ch.includes('hint-letter')) return ch;
 
-            const userChar = (typeof ch === 'string' && ch.includes('<span')) ? 
+            const userChar = (typeof ch === 'string' && ch.includes('<span')) ?
                              (new DOMParser().parseFromString(ch, 'text/html')).body.textContent : ch;
             const correctChar = solutionLines[idx][cidx];
 
@@ -284,7 +284,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
         isChecked = false;
         document.getElementById('check-btn').textContent = 'Check';
       }
-      updateAlphabetGrid(); 
+      updateAlphabetGrid();
       displayPuzzle();
       if (checkPuzzleComplete()) showCongratulationsPopup();
     }
@@ -306,7 +306,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
       if (adminKeys.length > ADMIN_CODE.length) adminKeys.shift();
       if (adminKeys.length === ADMIN_CODE.length && adminKeys.every((key, i) => key === ADMIN_CODE[i])) {
         adminCompletePuzzle();
-        adminKeys = []; 
+        adminKeys = [];
       }
     }
 
@@ -339,7 +339,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
       const popup = document.getElementById('congrats-popup');
       const statsElement = document.getElementById('popup-stats');
       const quoteElement = document.getElementById('popup-quote');
-      
+
       statsElement.innerHTML = `Hints Used: ${hintCount}`;
       quoteElement.innerHTML = solutionLines.join('<br>'); // Use solutionLines from Firestore
       popup.style.display = 'flex';
@@ -407,7 +407,7 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
             displayPuzzle();
             updateAlphabetGrid(); // Update alphabet grid after hint
             document.getElementById('hint-confirmation').style.display = 'none';
-            
+
             if (checkPuzzleComplete()) {
               showCongratulationsPopup();
             }
@@ -430,59 +430,67 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
     }
 
     async function shareResults() {
-      const emojiGrid = puzzleLines.map((line, row) => 
+      const emojiGrid = puzzleLines.map((line, row) =>
         line.split('').map((char, col) => {
-          if (!/[A-Z]/.test(char)) return char; 
+          if (!/[A-Z]/.test(char)) return char;
           const cellContent = blanks[row][col];
           return (typeof cellContent === 'string' && cellContent.includes('hint-letter')) ? '🟦' : '🟩';
         }).join('')
-      ).join('\n');
+      ).join('\n'); // emojiGrid will contain literal '\n' for newlines
 
       const messages = ["Flawless solve! 🎯", "Golden guess! 🌟", "Well played! ✨", "Puzzle conquered! 💪"];
       const performanceMsg = messages[Math.min(hintCount, 3)];
-     const siteUrl = "https://dailycryptoquip.com"; // Or window.location.href
-      // Ensure newlines are actual newline characters for the navigator.share text property
-      const shareTextContent = 
+      const siteUrl = "https://dailycryptoquip.com";
+
+      const shareTextBase =
         `Daily Cryptoquip\n` +
         `${hintCount} Hint${hintCount !== 1 ? 's' : ''} used. ${performanceMsg}\n\n` +
         `🔤 "${puzzleLines.length > 0 ? puzzleLines[0].substring(0, 6) : 'Puzzle'}..." (${puzzleLines.join(' ').length}-letter puzzle)\n` +
         `📊 ${emojiGrid}\n\n` +
-        `Can you crack the code?`; // URL will be added separately for navigator.share
+        `Can you crack the code?`;
 
-     if (navigator.share) {
-       try {
-         await navigator.share({
-           title: 'Daily Cryptoquip Results',
-           text: shareTextContent.replace(/\\n/g, '\n'), // Replace escaped newlines with actual newlines for share text
-           url: siteUrl,
-         });
-         // Optionally, provide feedback if needed, though native share UI is usually enough
-         // const feedback = document.getElementById('copy-feedback');
-         // feedback.textContent = "Shared successfully!";
-         // setTimeout(() => feedback.textContent = "", 2000);
-       } catch (err) {
-         console.error('Error using Web Share API:', err);
-         // Handle errors, e.g., if the user cancels the share
-         // No specific error message to user needed unless it's not an AbortError
-         // if (err.name !== 'AbortError') {
-         //   const feedback = document.getElementById('copy-feedback');
-         //   feedback.textContent = "Could not share: " + err.message;
-         //   setTimeout(() => feedback.textContent = "", 2000);
-         // }
-       }
-     } else {
-       // Fallback to existing clipboard copy logic
-       const fullShareTextForClipboard = shareTextContent.replace(/\\n/g, '\n') + `\n${siteUrl}`;
-       try {
-         await navigator.clipboard.writeText(fullShareTextForClipboard);
-         const feedback = document.getElementById('copy-feedback');
-         feedback.textContent = "Results copied to clipboard!";
-         setTimeout(() => feedback.textContent = "", 2000);
-       } catch (err) {
-         console.error('Failed to copy results: ', err);
-         prompt("Copy your results:", fullShareTextForClipboard);
-       }
-     }
+      const isMobile = (() => {
+        if (navigator.userAgentData && typeof navigator.userAgentData.mobile !== 'undefined') {
+          return navigator.userAgentData.mobile;
+        }
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      })();
+
+      const copyToClipboardAndShowMessage = async () => {
+        // For clipboard, replace literal '\n' with actual newline characters.
+        // Also append the site URL.
+        const textForClipboard = shareTextBase.replace(/\\n/g, '\n') + '\n' + siteUrl;
+        try {
+          await navigator.clipboard.writeText(textForClipboard);
+          const feedback = document.getElementById('copy-feedback');
+          feedback.textContent = "RESULTS COPIED TO CLIPBOARD";
+          setTimeout(() => feedback.textContent = "", 3000);
+        } catch (err) {
+          console.error('Failed to copy results: ', err);
+          prompt("Copy your results:", textForClipboard); // Fallback prompt
+        }
+      };
+
+      if (isMobile && navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Daily Cryptoquip Results',
+            // For navigator.share, replace literal '\n' with actual newline characters.
+            // The URL is a separate property.
+            text: shareTextBase.replace(/\\n/g, '\n'),
+            url: siteUrl,
+          });
+        } catch (err) {
+          console.error('Error using Web Share API:', err);
+          if (err.name !== 'AbortError') {
+            // Fallback for non-cancellation errors (optional)
+            // await copyToClipboardAndShowMessage();
+          }
+        }
+      } else {
+        // Desktop, or mobile without navigator.share
+        await copyToClipboardAndShowMessage();
+      }
     }
 
     // Event listeners
@@ -518,10 +526,10 @@ if (testDate && /^\d{4}-\d{2}-\d{2}$/.test(testDate)) {
           this.value = this.value.replace(/[^A-Za-z]/g, '').toUpperCase();
         });
       }
-      
+
       const helpButton = document.getElementById('help-btn');
       if (helpButton) helpButton.addEventListener('click', toggleHowToPlay);
-      
+
       document.addEventListener('keydown', checkAdminCode);
       // Removed document.addEventListener('DOMContentLoaded', updateAlphabetGrid); as it's called after fetch
       document.addEventListener('touchstart', function() {}, {passive: true}); // For :active styles on touch
